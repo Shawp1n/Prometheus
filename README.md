@@ -1,14 +1,3 @@
-<p align="center">
-<pre>
- ┏━┃┏━┃┏━┃┏┏ ┏━┛━┏┛┃ ┃┏━┛┃ ┃┏━┛
- ┏━┛┏┏┛┃ ┃┃┃┃┏━┛ ┃ ┏━┃┏━┛┃ ┃━━┃
- ┛  ┛ ┛━━┛┛┛┛━━┛ ┛ ┛ ┛━━┛━━┛━━┛
-</pre>
-<b>Windows Batch tool for Anthropic Claude API Profile Management</b>
-<br>
-<a href="#english">English</a> | <a href="#chinese">简体中文</a>
-</p>
-
 # Prometheus
 
 Prometheus 是一个用于管理 Anthropic Claude API 配置（API Key 和 Base URL）的 Windows 批处理工具。它允许你在多个 API 配置之间快速切换，或者启动带有特定配置的隔离终端环境。
@@ -59,5 +48,6 @@ Prometheus 是一个用于管理 Anthropic Claude API 配置（API Key 和 Base 
     *   本工具按“原样”提供，不提供任何形式的明示或暗示担保。
     *   作者不对因使用本工具（包括但不限于密钥泄露、配置丢失、系统设置异常）造成的任何直接或间接损失负责。
     *   **请仅在受信任的个人电脑上使用。**
+
 
 
