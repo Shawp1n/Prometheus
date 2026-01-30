@@ -20,6 +20,9 @@ Prometheus 是一个用于管理 Anthropic Claude API 配置（API Key 和 Base 
     -   `[D]`: 删除配置 (Delete Profile)
     -   `[G]`: **设置全局环境 (Set Global Env)** - *设置系统级环境变量*
     -   `[Input ID]`: **启动隔离终端 (Launch Terminal)** - *在 Windows Terminal 新标签页中启动*
+    -   `[S]`: **快捷指令 (Shortcuts)**
+        -   管理常用的启动命令 (如: `myproject` -> `cd ...`)
+        -   支持多命令串联：使用 `$T` 连接 (如: `cd path $T claude`)
     -   `[T]`: 测试连接 (Test Connection)
     -   `[B]`: 备份/恢复 (Backup/Restore)
 

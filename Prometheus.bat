@@ -47,6 +47,13 @@ for /L %%i in (1,1,100) do (
     set "p_url[%%i]="
 )
 
+:: Initialize Shortcuts
+set sc_count=0
+for /L %%i in (1,1,50) do (
+    set "sc_alias[%%i]="
+    set "sc_cmd[%%i]="
+)
+
 :: Get current registry key
 for /f "tokens=2*" %%a in ('reg query "HKCU\Environment" /v ANTHROPIC_AUTH_TOKEN 2^>nul') do set "current_key=%%b"
 
@@ -60,6 +67,13 @@ for /f "tokens=2,3,4 delims=|" %%a in ('findstr /b "::DATA|" "%~f0"') do (
     if "%%b"=="!current_key!" (
         set "active_profile=%%a"
     )
+)
+
+:: Load Shortcuts
+for /f "tokens=2,3 delims=|" %%a in ('findstr /b "::SHORTCUT|" "%~f0"') do (
+    set /a sc_count+=1
+    set "sc_alias[!sc_count!]=%%a"
+    set "sc_cmd[!sc_count!]=%%b"
 )
 
 :: Now Render UI
@@ -109,6 +123,7 @@ echo.
 echo    %c_WHITE%[N]%c_RESET% New Profile    %c_WHITE%[E]%c_RESET% Edit Profile    %c_WHITE%[D]%c_RESET% Delete Profile
 echo    %c_WHITE%[G]%c_RESET% Global Env     %c_WHITE%[T]%c_RESET% Test Connect    %c_WHITE%[B]%c_RESET% Backup/Restore
 echo    %c_WHITE%[C]%c_RESET% Clear All      %c_WHITE%[H]%c_RESET% Help            %c_WHITE%[Q]%c_RESET% Quit
+echo    %c_WHITE%[S]%c_RESET% Shortcuts
 echo.
 echo    %c_GRAY%[0] or Enter to go back in submenus%c_RESET%
 echo.
@@ -123,6 +138,7 @@ if /i "%ACTION%"=="D" goto DELETE_CONFIG
 if /i "%ACTION%"=="T" goto TEST_CONNECTION
 if /i "%ACTION%"=="B" goto BACKUP_MENU
 if /i "%ACTION%"=="C" goto CLEAR_ALL_CONFIG
+if /i "%ACTION%"=="S" goto SHORTCUT_MENU
 if /i "%ACTION%"=="H" goto SHOW_HELP
 if /i "%ACTION%"=="Q" goto EXIT_APP
 
@@ -296,7 +312,14 @@ echo.
 echo   %c_CYAN%Launching isolated terminal for %L_NAME%...%c_RESET%
 echo.
 
-wt -w 0 nt --title "Prometheus: %L_NAME%" -d . cmd /k "title Prometheus: %L_NAME% & color 0B & echo. & echo %c_MAGENTA% ┏━┃┏━┃┏━┃┏┏ ┏━┛━┏┛┃ ┃┏━┛┃ ┃┏━┛ %c_RESET% & echo %c_MAGENTA% ┏━┛┏┏┛┃ ┃┃┃┃┏━┛ ┃ ┏━┃┏━┛┃ ┃━━┃  %c_RESET% & echo %c_MAGENTA% ┛  ┛ ┛━━┛┛┛┛━━┛ ┛ ┛ ┛━━┛━━┛━━┛     %c_RESET% & echo. & echo  %c_GOLD%Prometheus Isolated Environment%c_RESET% & echo  %c_GRAY%Profile: %L_NAME%%c_RESET% & echo  %c_GRAY%URL: %L_URL%%c_RESET% & echo. & set ANTHROPIC_AUTH_TOKEN=%L_KEY%& set ANTHROPIC_BASE_URL=%L_URL%& set CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1"
+set "SHORTCUT_STRING="
+if %sc_count% GTR 0 (
+    for /L %%i in (1,1,%sc_count%) do (
+        set "SHORTCUT_STRING=!SHORTCUT_STRING! & doskey !sc_alias[%%i]!=!sc_cmd[%%i]!"
+    )
+)
+
+wt -w 0 nt --title "Prometheus: %L_NAME%" -d . cmd /k "title Prometheus: %L_NAME% & color 0B & echo. & echo %c_MAGENTA% ┏━┃┏━┃┏━┃┏┏ ┏━┛━┏┛┃ ┃┏━┛┃ ┃┏━┛ %c_RESET% & echo %c_MAGENTA% ┏━┛┏┏┛┃ ┃┃┃┃┏━┛ ┃ ┏━┃┏━┛┃ ┃━━┃  %c_RESET% & echo %c_MAGENTA% ┛  ┛ ┛━━┛┛┛┛━━┛ ┛ ┛ ┛━━┛━━┛━━┛     %c_RESET% & echo. & echo  %c_GOLD%Prometheus Isolated Environment%c_RESET% & echo  %c_GRAY%Profile: %L_NAME%%c_RESET% & echo  %c_GRAY%URL: %L_URL%%c_RESET% & echo. & set ANTHROPIC_AUTH_TOKEN=%L_KEY%& set ANTHROPIC_BASE_URL=%L_URL%& set CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1%SHORTCUT_STRING%"
 
 goto MAIN_MENU
 
@@ -398,6 +421,9 @@ echo # ================================ >> "%BACKUP_FILE%"
 for /f "tokens=2,3,4 delims=|" %%a in ('findstr /b "::DATA|" "%~f0"') do (
     echo %%a^|%%b^|%%c >> "%BACKUP_FILE%"
 )
+for /f "tokens=2,3 delims=|" %%a in ('findstr /b "::SHORTCUT|" "%~f0"') do (
+    echo SHORTCUT^|%%a^|%%b >> "%BACKUP_FILE%"
+)
 
 call :SHOW_SUCCESS "Quick Backup created at:"
 echo   %c_GRAY%%BACKUP_FILE%%c_RESET%
@@ -429,7 +455,11 @@ if not exist "%IMPORT_FILE%" (
 set import_count=0
 for /f "tokens=1,2,3 delims=|" %%a in ('findstr /v /b "#" "%IMPORT_FILE%"') do (
     if not "%%a"=="" if not "%%b"=="" if not "%%c"=="" (
-        echo ::DATA^|%%a^|%%b^|%%c>>"%~f0"
+        if "%%a"=="SHORTCUT" (
+            echo ::SHORTCUT^|%%b^|%%c>>"%~f0"
+        ) else (
+            echo ::DATA^|%%a^|%%b^|%%c>>"%~f0"
+        )
         set /a import_count+=1
     )
 )
@@ -603,6 +633,122 @@ goto :eof
 echo.
 echo   %c_RED%✗ %~1%c_RESET%
 goto :eof
+
+REM ===================================================================================================
+REM 快捷指令菜单
+REM ===================================================================================================
+:SHORTCUT_MENU
+:: Reload shortcuts to ensure freshness
+set sc_count=0
+for /L %%i in (1,1,50) do (
+    set "sc_alias[%%i]="
+    set "sc_cmd[%%i]="
+)
+for /f "tokens=2,3 delims=|" %%a in ('findstr /b "::SHORTCUT|" "%~f0"') do (
+    set /a sc_count+=1
+    set "sc_alias[!sc_count!]=%%a"
+    set "sc_cmd[!sc_count!]=%%b"
+)
+
+cls
+call :SHOW_HEADER "SHORTCUTS MANAGER"
+echo.
+echo   %c_CYAN%Manage quick commands for your terminal sessions.%c_RESET%
+echo.
+
+if %sc_count%==0 (
+    echo   %c_GRAY%No shortcuts defined.%c_RESET%
+    echo.
+) else (
+    echo   %c_WHITE%Current Shortcuts:%c_RESET%
+    for /L %%i in (1,1,%sc_count%) do (
+        echo   %c_WHITE%[%%i]%c_RESET% %c_YELLOW%!sc_alias[%%i]!%c_RESET% = %c_GRAY%!sc_cmd[%%i]!%c_RESET%
+    )
+    echo.
+)
+
+echo   %c_WHITE%[N]%c_RESET% New Shortcut
+echo   %c_WHITE%[D]%c_RESET% Delete Shortcut
+echo.
+echo   %c_GRAY%[0] Back to Main Menu%c_RESET%
+echo.
+
+set /p "S_ACTION=  %c_WHITE%Select option: %c_RESET%"
+
+if /i "%S_ACTION%"=="N" goto NEW_SHORTCUT
+if /i "%S_ACTION%"=="D" goto DELETE_SHORTCUT
+if "%S_ACTION%"=="0" goto MAIN_MENU
+goto SHORTCUT_MENU
+
+REM ===================================================================================================
+REM 新建快捷指令
+REM ===================================================================================================
+:NEW_SHORTCUT
+cls
+call :SHOW_HEADER "NEW SHORTCUT"
+echo.
+echo   %c_GRAY%Press [0] or Enter to return%c_RESET%
+echo.
+
+set "S_ALIAS="
+set "S_CMD="
+
+set /p "S_ALIAS=  %c_WHITE%Alias (e.g. myproject): %c_RESET%"
+if "%S_ALIAS%"=="" goto SHORTCUT_MENU
+if "%S_ALIAS%"=="0" goto SHORTCUT_MENU
+
+:: 验证 Alias 不包含空格或特殊字符
+echo %S_ALIAS% | findstr /r "[&|<> ]" >nul && (
+    call :SHOW_ERROR "Alias cannot contain spaces or special characters"
+    goto NEW_SHORTCUT
+)
+
+set /p "S_CMD=  %c_WHITE%Command (e.g. cd /d C:\Projects\MyProject): %c_RESET%"
+if "%S_CMD%"=="" goto SHORTCUT_MENU
+if "%S_CMD%"=="0" goto SHORTCUT_MENU
+
+:: 保存快捷指令
+echo ::SHORTCUT^|!S_ALIAS!^|!S_CMD!>>"%~f0"
+
+call :SHOW_SUCCESS "Shortcut '!S_ALIAS!' added!"
+echo   %c_GRAY%Tip: You can use $T to chain commands (e.g. cd path $T claude)%c_RESET%
+timeout /t 4 >nul
+goto MAIN_MENU
+
+REM ===================================================================================================
+REM 删除快捷指令
+REM ===================================================================================================
+:DELETE_SHORTCUT
+cls
+call :SHOW_HEADER "DELETE SHORTCUT"
+echo.
+
+if %sc_count%==0 (
+    call :SHOW_ERROR "No shortcuts to delete."
+    timeout /t 2 >nul
+    goto SHORTCUT_MENU
+)
+
+set /p "DS_NUM=  %c_WHITE%Enter shortcut ID to delete [1-%sc_count%]: %c_RESET%"
+if "%DS_NUM%"=="" goto SHORTCUT_MENU
+if "%DS_NUM%"=="0" goto SHORTCUT_MENU
+
+if not defined sc_alias[%DS_NUM%] (
+    call :SHOW_ERROR "Invalid ID."
+    timeout /t 2 >nul
+    goto SHORTCUT_MENU
+)
+
+set "DEL_ALIAS=!sc_alias[%DS_NUM%]!"
+set "DEL_CMD=!sc_cmd[%DS_NUM%]!"
+
+set "S_TARGET=::SHORTCUT|%DEL_ALIAS%|%DEL_CMD%"
+findstr /v /c:"%S_TARGET%" "%~f0" > "%~f0.tmp"
+move /y "%~f0.tmp" "%~f0" >nul
+
+call :SHOW_SUCCESS "Shortcut '%DEL_ALIAS%' deleted."
+timeout /t 2 >nul
+goto SHORTCUT_MENU
 
 REM ===================================================================================================
 REM DATA SECTION (DO NOT EDIT MANUALLY)
