@@ -296,7 +296,7 @@ echo.
 echo   %c_CYAN%Launching isolated terminal for %L_NAME%...%c_RESET%
 echo.
 
-start "Prometheus: %L_NAME%" cmd /k "title Prometheus: %L_NAME% & color 0B & echo. & echo %c_MAGENTA% ┏━┃┏━┃┏━┃┏┏ ┏━┛━┏┛┃ ┃┏━┛┃ ┃┏━┛ %c_RESET% & echo %c_MAGENTA% ┏━┛┏┏┛┃ ┃┃┃┃┏━┛ ┃ ┏━┃┏━┛┃ ┃━━┃  %c_RESET% & echo %c_MAGENTA% ┛  ┛ ┛━━┛┛┛┛━━┛ ┛ ┛ ┛━━┛━━┛━━┛     %c_RESET% & echo. & echo  %c_GOLD%Prometheus Isolated Environment%c_RESET% & echo  %c_GRAY%Profile: %L_NAME%%c_RESET% & echo  %c_GRAY%URL: %L_URL%%c_RESET% & echo. & set ANTHROPIC_AUTH_TOKEN=%L_KEY%& set ANTHROPIC_BASE_URL=%L_URL%& set CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1"
+wt -w 0 nt --title "Prometheus: %L_NAME%" -d . cmd /k "title Prometheus: %L_NAME% & color 0B & echo. & echo %c_MAGENTA% ┏━┃┏━┃┏━┃┏┏ ┏━┛━┏┛┃ ┃┏━┛┃ ┃┏━┛ %c_RESET% & echo %c_MAGENTA% ┏━┛┏┏┛┃ ┃┃┃┃┏━┛ ┃ ┏━┃┏━┛┃ ┃━━┃  %c_RESET% & echo %c_MAGENTA% ┛  ┛ ┛━━┛┛┛┛━━┛ ┛ ┛ ┛━━┛━━┛━━┛     %c_RESET% & echo. & echo  %c_GOLD%Prometheus Isolated Environment%c_RESET% & echo  %c_GRAY%Profile: %L_NAME%%c_RESET% & echo  %c_GRAY%URL: %L_URL%%c_RESET% & echo. & set ANTHROPIC_AUTH_TOKEN=%L_KEY%& set ANTHROPIC_BASE_URL=%L_URL%& set CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1"
 
 goto MAIN_MENU
 

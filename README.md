@@ -6,7 +6,7 @@ Prometheus 是一个用于管理 Anthropic Claude API 配置（API Key 和 Base 
 
 -   **多配置文件管理**：保存多个 API Key 和 URL 组合。
 -   **全局环境切换**：一键设置系统级环境变量（`ANTHROPIC_AUTH_TOKEN`, `ANTHROPIC_BASE_URL` 等），立即生效（需重启终端）。
--   **隔离环境启动**：**[新功能]** 启动一个新的终端窗口，仅在该窗口内应用选定的 API 配置，不影响全局环境变量。
+-   **隔离环境启动**：**[新功能]** 在 **Windows Terminal** 中启动一个新的选项卡 (Tab)，仅在该选项卡内应用选定的 API 配置，不影响全局环境变量。便于多环境并存管理。
 -   **配置导入/导出**：方便备份和迁移配置。
 -   **连接测试**：内置 `curl` 测试功能，验证 API 连接性和权限。
 -   **直观 UI**：颜色编码的界面，清晰显示当前激活的全局配置。
@@ -19,7 +19,7 @@ Prometheus 是一个用于管理 Anthropic Claude API 配置（API Key 和 Base 
     -   `[E]`: 编辑配置 (Edit Profile)
     -   `[D]`: 删除配置 (Delete Profile)
     -   `[G]`: **设置全局环境 (Set Global Env)** - *设置系统级环境变量*
-    -   `[Input ID]`: **启动隔离终端 (Launch Terminal)** - *无需影响全局环境，直接启动*
+    -   `[Input ID]`: **启动隔离终端 (Launch Terminal)** - *在 Windows Terminal 新标签页中启动*
     -   `[T]`: 测试连接 (Test Connection)
     -   `[B]`: 备份/恢复 (Backup/Restore)
 
@@ -34,7 +34,7 @@ Prometheus 是一个用于管理 Anthropic Claude API 配置（API Key 和 Base 
 
 当直接输入 **ID** 启动隔离终端时，这些变量仅在新的命令行窗口中临时设置。
 
-## ⚠️ 安全免责声明 (Security Disclaimer)
+## 安全免责声明 (Security Disclaimer)⚠️
 
 本工具为纯 Batch 脚本编写的**本地辅助工具**，使用时请务必注意以下安全风险：
 
