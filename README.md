@@ -34,7 +34,7 @@ Prometheus 是一个用于管理 Anthropic Claude API 配置（API Key 和 Base 
 
 当直接输入 **ID** 启动隔离终端时，这些变量仅在新的命令行窗口中临时设置。
 
-## 安全免责声明 (Security Disclaimer)⚠️
+## ⚠️ 安全免责声明 (Security Disclaimer)
 
 本工具为纯 Batch 脚本编写的**本地辅助工具**，使用时请务必注意以下安全风险：
 
@@ -48,6 +48,3 @@ Prometheus 是一个用于管理 Anthropic Claude API 配置（API Key 和 Base 
     *   本工具按“原样”提供，不提供任何形式的明示或暗示担保。
     *   作者不对因使用本工具（包括但不限于密钥泄露、配置丢失、系统设置异常）造成的任何直接或间接损失负责。
     *   **请仅在受信任的个人电脑上使用。**
-
-
-
