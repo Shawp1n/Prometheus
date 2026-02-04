@@ -22,20 +22,7 @@ set "c_RESET=%ESC%[0m"
 set "c_DIM=%ESC%[2m"
 set "c_BOLD=%ESC%[1m"
 
-REM ===================================================================================================
-REM Clear settings.json
-REM ===================================================================================================
-if exist "%USERPROFILE%\.claude\settings.json" (
-    (
-    echo {
-    echo   "env": {},
-    echo   "permissions": {
-    echo     "allow": [],
-    echo     "deny": []
-    echo   }
-    echo }
-    ) > "%USERPROFILE%\.claude\settings.json"
-)
+
 
 :MAIN_MENU
 :: Initialize/Clear variables

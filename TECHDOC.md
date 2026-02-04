@@ -11,6 +11,7 @@ Prometheus 是为了解决多环境下的 Claude API 配置管理问题而开发
 - **环境变量控制**：
     - **全局模式**：使用 `setx` 命令修改 Windows 用户级环境变量，实现持久化配置。
     - **隔离模式**：通过 `wt` (Windows Terminal) 启动新的 CMD 进程，并在启动参数中直接注入环境变量 (`cmd /k "set ..."`). 这样新窗口拥有独立的配置，互不干扰。
+    - **配置保留**：脚本不再主动修改或重置 `%USERPROFILE%\.claude\settings.json`，确保现有的 MCP (Model Context Protocol) 配置和权限设置不受影响。
 - **快捷指令注入**：利用 `doskey` 命令别名机制。
     -   在启动隔离终端时，脚本会读取用户定义的快捷指令，动态构建 `doskey alias=command` 序列。
     -   支持使用 `$T` 作为命令分隔符，实现多命令串联（如 `cd path $T command`）。
