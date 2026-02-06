@@ -42,7 +42,7 @@ for /L %%i in (1,1,50) do (
 )
 
 :: Get current registry key
-for /f "tokens=2*" %%a in ('reg query "HKCU\Environment" /v ANTHROPIC_AUTH_TOKEN 2^>nul') do set "current_key=%%b"
+for /f "tokens=2*" %%a in ('reg query "HKCU\Environment" /v ANTHROPIC_API_KEY 2^>nul') do set "current_key=%%b"
 
 :: Load Data into Memory & Find Active Profile
 for /f "tokens=2,3,4 delims=|" %%a in ('findstr /b "::DATA|" "%~f0"') do (
@@ -306,7 +306,7 @@ if %sc_count% GTR 0 (
     )
 )
 
-wt -w 0 nt --title "Prometheus: %L_NAME%" -d . cmd /k "title Prometheus: %L_NAME% & color 0B & echo. & echo %c_MAGENTA% ┏━┃┏━┃┏━┃┏┏ ┏━┛━┏┛┃ ┃┏━┛┃ ┃┏━┛ %c_RESET% & echo %c_MAGENTA% ┏━┛┏┏┛┃ ┃┃┃┃┏━┛ ┃ ┏━┃┏━┛┃ ┃━━┃  %c_RESET% & echo %c_MAGENTA% ┛  ┛ ┛━━┛┛┛┛━━┛ ┛ ┛ ┛━━┛━━┛━━┛     %c_RESET% & echo. & echo  %c_GOLD%Prometheus Isolated Environment%c_RESET% & echo  %c_GRAY%Profile: %L_NAME%%c_RESET% & echo  %c_GRAY%URL: %L_URL%%c_RESET% & echo. & set ANTHROPIC_AUTH_TOKEN=%L_KEY%& set ANTHROPIC_BASE_URL=%L_URL%& set CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1%SHORTCUT_STRING%"
+wt -w 0 nt --title "Prometheus: %L_NAME%" -d . cmd /k "title Prometheus: %L_NAME% & color 0B & echo. & echo %c_MAGENTA% ┏━┃┏━┃┏━┃┏┏ ┏━┛━┏┛┃ ┃┏━┛┃ ┃┏━┛ %c_RESET% & echo %c_MAGENTA% ┏━┛┏┏┛┃ ┃┃┃┃┏━┛ ┃ ┏━┃┏━┛┃ ┃━━┃  %c_RESET% & echo %c_MAGENTA% ┛  ┛ ┛━━┛┛┛┛━━┛ ┛ ┛ ┛━━┛━━┛━━┛     %c_RESET% & echo. & echo  %c_GOLD%Prometheus Isolated Environment%c_RESET% & echo  %c_GRAY%Profile: %L_NAME%%c_RESET% & echo  %c_GRAY%URL: %L_URL%%c_RESET% & echo. & set ANTHROPIC_API_KEY=%L_KEY%& set ANTHROPIC_BASE_URL=%L_URL%& set CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1%SHORTCUT_STRING%"
 
 goto MAIN_MENU
 
@@ -524,10 +524,10 @@ set "SEL_URL=!p_url[%G_NUM%]!"
 
 :APPLY_CONFIG_EXEC
 REM 执行系统变量设置
-echo   %c_GRAY%Setting ANTHROPIC_AUTH_TOKEN...%c_RESET%
-setx ANTHROPIC_AUTH_TOKEN "%SEL_KEY%" >nul 2>&1
+echo   %c_GRAY%Setting ANTHROPIC_API_KEY...%c_RESET%
+setx ANTHROPIC_API_KEY "%SEL_KEY%" >nul 2>&1
 if errorlevel 1 (
-    call :SHOW_ERROR "Failed to set ANTHROPIC_AUTH_TOKEN"
+    call :SHOW_ERROR "Failed to set ANTHROPIC_API_KEY"
     pause
     goto MAIN_MENU
 )
@@ -575,7 +575,7 @@ echo   %c_WHITE%[Q]%c_RESET%    Quit
 echo   %c_WHITE%[0]%c_RESET%    Return to main menu (in submenus)
 echo.
 echo   %c_CYAN%Environment Variables Set:%c_RESET%
-echo   - ANTHROPIC_AUTH_TOKEN
+echo   - ANTHROPIC_API_KEY
 echo   - ANTHROPIC_BASE_URL
 echo   - CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC
 echo   - API_TIMEOUT_MS

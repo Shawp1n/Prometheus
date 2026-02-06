@@ -5,7 +5,7 @@ Prometheus 是一个用于管理 Anthropic Claude API 配置（API Key 和 Base 
 ## 功能特性
 
 -   **多配置文件管理**：保存多个 API Key 和 URL 组合。
--   **全局环境切换**：一键设置系统级环境变量（`ANTHROPIC_AUTH_TOKEN`, `ANTHROPIC_BASE_URL` 等），立即生效（需重启终端）。
+-   **全局环境切换**：一键设置系统级环境变量（`ANTHROPIC_API_KEY`, `ANTHROPIC_BASE_URL` 等），立即生效（需重启终端）。
 -   **隔离环境启动**：**[新功能]** 在 **Windows Terminal** 中启动一个新的选项卡 (Tab)，仅在该选项卡内应用选定的 API 配置，不影响全局环境变量。便于多环境并存管理。
 -   **配置导入/导出**：方便备份和迁移配置。
 -   **连接测试**：内置 `curl` 测试功能，验证 API 连接性和权限。
@@ -31,7 +31,7 @@ Prometheus 是一个用于管理 Anthropic Claude API 配置（API Key 和 Base 
 
 当应用配置为全局时，Prometheus 会设置以下用户级环境变量：
 
--   `ANTHROPIC_AUTH_TOKEN`: 你的 API Key
+-   `ANTHROPIC_API_KEY`: 你的 API Key
 -   `ANTHROPIC_BASE_URL`: 你的 API 代理地址
 -   `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC`: 设为 1
 -   `API_TIMEOUT_MS`: 设为 600000 (10分钟)
