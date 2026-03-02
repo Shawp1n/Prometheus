@@ -32,6 +32,9 @@ for /L %%i in (1,1,100) do (
     set "p_name[%%i]="
     set "p_key[%%i]="
     set "p_url[%%i]="
+    set "p_haiku[%%i]="
+    set "p_sonnet[%%i]="
+    set "p_opus[%%i]="
 )
 
 :: Initialize Shortcuts
@@ -45,11 +48,14 @@ for /L %%i in (1,1,50) do (
 for /f "tokens=2*" %%a in ('reg query "HKCU\Environment" /v ANTHROPIC_AUTH_TOKEN 2^>nul') do set "current_key=%%b"
 
 :: Load Data into Memory & Find Active Profile
-for /f "tokens=2,3,4 delims=|" %%a in ('findstr /b "::DATA|" "%~f0"') do (
+for /f "tokens=2,3,4,5,6,7 delims=|" %%a in ('findstr /b "::DATA|" "%~f0"') do (
     set /a count+=1
     set "p_name[!count!]=%%a"
     set "p_key[!count!]=%%b"
     set "p_url[!count!]=%%c"
+    set "p_haiku[!count!]=%%d"
+    set "p_sonnet[!count!]=%%e"
+    set "p_opus[!count!]=%%f"
 
     if "%%b"=="!current_key!" (
         set "active_profile=%%a"
@@ -99,6 +105,11 @@ if %count%==0 (
         echo  !status_icon!%c_WHITE%[%%i]%c_RESET% %c_YELLOW%!p_name[%%i]!%c_RESET%
         echo        %c_GRAY%Key: !masked_key!%c_RESET%
         echo        %c_GRAY%URL: !p_url[%%i]!%c_RESET%
+        set "models_str="
+        if defined p_haiku[%%i] set "models_str=!models_str! HK:!p_haiku[%%i]!"
+        if defined p_sonnet[%%i] set "models_str=!models_str! SN:!p_sonnet[%%i]!"
+        if defined p_opus[%%i] set "models_str=!models_str! OP:!p_opus[%%i]!"
+        if defined models_str echo        %c_GRAY%Models:!models_str!%c_RESET%
         echo.
     )
 )
@@ -150,6 +161,9 @@ echo.
 set "N_NAME="
 set "N_KEY="
 set "N_URL="
+set "N_HAIKU="
+set "N_SONNET="
+set "N_OPUS="
 
 set /p "N_NAME=  %c_WHITE%Profile Name: %c_RESET%"
 if "%N_NAME%"=="" goto MAIN_MENU
@@ -183,8 +197,15 @@ echo %N_URL% | findstr /b "http" >nul || (
     goto NEW_CONFIG
 )
 
+set /p "N_HAIKU=  %c_WHITE%Haiku Model (Optional): %c_RESET%"
+if "%N_HAIKU%"=="0" goto MAIN_MENU
+set /p "N_SONNET=  %c_WHITE%Sonnet Model (Optional): %c_RESET%"
+if "%N_SONNET%"=="0" goto MAIN_MENU
+set /p "N_OPUS=  %c_WHITE%Opus Model (Optional): %c_RESET%"
+if "%N_OPUS%"=="0" goto MAIN_MENU
+
 :: 保存配置
-echo ::DATA^|%N_NAME%^|%N_KEY%^|%N_URL%>>"%~f0"
+echo ::DATA^|%N_NAME%^|%N_KEY%^|%N_URL%^|%N_HAIKU%^|%N_SONNET%^|%N_OPUS%>>"%~f0"
 
 call :SHOW_SUCCESS "Profile '%N_NAME%' created successfully!"
 timeout /t 2 >nul
@@ -219,6 +240,9 @@ if not defined p_name[%E_NUM%] (
 set "OLD_NAME=!p_name[%E_NUM%]!"
 set "OLD_KEY=!p_key[%E_NUM%]!"
 set "OLD_URL=!p_url[%E_NUM%]!"
+set "OLD_HAIKU=!p_haiku[%E_NUM%]!"
+set "OLD_SONNET=!p_sonnet[%E_NUM%]!"
+set "OLD_OPUS=!p_opus[%E_NUM%]!"
 
 echo.
 echo   %c_GRAY%Current values shown in brackets. Press Enter to keep.%c_RESET%
@@ -235,11 +259,26 @@ echo   %c_GRAY%Current URL: %OLD_URL%%c_RESET%
 set /p "NEW_URL=  %c_WHITE%New URL: %c_RESET%"
 if "%NEW_URL%"=="" set "NEW_URL=%OLD_URL%"
 
+echo   %c_GRAY%Current Haiku: %OLD_HAIKU%%c_RESET%
+set /p "NEW_HAIKU=  %c_WHITE%New Haiku (Enter '-' to clear): %c_RESET%"
+if "%NEW_HAIKU%"=="" set "NEW_HAIKU=%OLD_HAIKU%"
+if "%NEW_HAIKU%"=="-" set "NEW_HAIKU="
+
+echo   %c_GRAY%Current Sonnet: %OLD_SONNET%%c_RESET%
+set /p "NEW_SONNET=  %c_WHITE%New Sonnet (Enter '-' to clear): %c_RESET%"
+if "%NEW_SONNET%"=="" set "NEW_SONNET=%OLD_SONNET%"
+if "%NEW_SONNET%"=="-" set "NEW_SONNET="
+
+echo   %c_GRAY%Current Opus: %OLD_OPUS%%c_RESET%
+set /p "NEW_OPUS=  %c_WHITE%New Opus (Enter '-' to clear): %c_RESET%"
+if "%NEW_OPUS%"=="" set "NEW_OPUS=%OLD_OPUS%"
+if "%NEW_OPUS%"=="-" set "NEW_OPUS="
+
 :: 删除旧配置并添加新配置
 set "D_TARGET=::DATA|%OLD_NAME%|%OLD_KEY%|%OLD_URL%"
 findstr /v /c:"%D_TARGET%" "%~f0" > "%~f0.tmp"
 move /y "%~f0.tmp" "%~f0" >nul
-echo ::DATA^|%NEW_NAME%^|%NEW_KEY%^|%NEW_URL%>>"%~f0"
+echo ::DATA^|%NEW_NAME%^|%NEW_KEY%^|%NEW_URL%^|%NEW_HAIKU%^|%NEW_SONNET%^|%NEW_OPUS%>>"%~f0"
 
 call :SHOW_SUCCESS "Profile updated successfully!"
 timeout /t 2 >nul
@@ -294,6 +333,9 @@ REM ============================================================================
 set "L_NAME=!p_name[%L_NUM%]!"
 set "L_KEY=!p_key[%L_NUM%]!"
 set "L_URL=!p_url[%L_NUM%]!"
+set "L_HAIKU=!p_haiku[%L_NUM%]!"
+set "L_SONNET=!p_sonnet[%L_NUM%]!"
+set "L_OPUS=!p_opus[%L_NUM%]!"
 
 echo.
 echo   %c_CYAN%Launching isolated terminal for %L_NAME%...%c_RESET%
@@ -306,7 +348,12 @@ if %sc_count% GTR 0 (
     )
 )
 
-wt -w 0 nt --title "Prometheus: %L_NAME%" -d . cmd /k "title Prometheus: %L_NAME% & color 0B & echo. & echo %c_MAGENTA% ┏━┃┏━┃┏━┃┏┏ ┏━┛━┏┛┃ ┃┏━┛┃ ┃┏━┛ %c_RESET% & echo %c_MAGENTA% ┏━┛┏┏┛┃ ┃┃┃┃┏━┛ ┃ ┏━┃┏━┛┃ ┃━━┃  %c_RESET% & echo %c_MAGENTA% ┛  ┛ ┛━━┛┛┛┛━━┛ ┛ ┛ ┛━━┛━━┛━━┛     %c_RESET% & echo. & echo  %c_GOLD%Prometheus Isolated Environment%c_RESET% & echo  %c_GRAY%Profile: %L_NAME%%c_RESET% & echo  %c_GRAY%URL: %L_URL%%c_RESET% & echo. & set ANTHROPIC_AUTH_TOKEN=%L_KEY%& set ANTHROPIC_BASE_URL=%L_URL%& set CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1%SHORTCUT_STRING%"
+set "MODEL_ENV="
+if defined L_HAIKU set "MODEL_ENV=!MODEL_ENV!& set ANTHROPIC_DEFAULT_HAIKU_MODEL=!L_HAIKU!"
+if defined L_SONNET set "MODEL_ENV=!MODEL_ENV!& set ANTHROPIC_DEFAULT_SONNET_MODEL=!L_SONNET!"
+if defined L_OPUS set "MODEL_ENV=!MODEL_ENV!& set ANTHROPIC_DEFAULT_OPUS_MODEL=!L_OPUS!"
+
+wt -w 0 nt --title "Prometheus: %L_NAME%" -d . cmd /k "title Prometheus: %L_NAME% & color 0B & echo. & echo %c_MAGENTA% ┏━┃┏━┃┏━┃┏┏ ┏━┛━┏┛┃ ┃┏━┛┃ ┃┏━┛ %c_RESET% & echo %c_MAGENTA% ┏━┛┏┏┛┃ ┃┃┃┃┏━┛ ┃ ┏━┃┏━┛┃ ┃━━┃  %c_RESET% & echo %c_MAGENTA% ┛  ┛ ┛━━┛┛┛┛━━┛ ┛ ┛ ┛━━┛━━┛━━┛     %c_RESET% & echo. & echo  %c_GOLD%Prometheus Isolated Environment%c_RESET% & echo  %c_GRAY%Profile: %L_NAME%%c_RESET% & echo  %c_GRAY%URL: %L_URL%%c_RESET% & echo. & set ANTHROPIC_AUTH_TOKEN=%L_KEY%& set ANTHROPIC_BASE_URL=%L_URL%& set CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1!MODEL_ENV!%SHORTCUT_STRING%"
 
 goto MAIN_MENU
 
@@ -405,8 +452,8 @@ echo # Prometheus Config Backup > "%BACKUP_FILE%"
 echo # Generated: %date% %time% >> "%BACKUP_FILE%"
 echo # ================================ >> "%BACKUP_FILE%"
 
-for /f "tokens=2,3,4 delims=|" %%a in ('findstr /b "::DATA|" "%~f0"') do (
-    echo %%a^|%%b^|%%c >> "%BACKUP_FILE%"
+for /f "tokens=2,3,4,5,6,7 delims=|" %%a in ('findstr /b "::DATA|" "%~f0"') do (
+    echo %%a^|%%b^|%%c^|%%d^|%%e^|%%f >> "%BACKUP_FILE%"
 )
 for /f "tokens=2,3 delims=|" %%a in ('findstr /b "::SHORTCUT|" "%~f0"') do (
     echo SHORTCUT^|%%a^|%%b >> "%BACKUP_FILE%"
@@ -440,12 +487,12 @@ if not exist "%IMPORT_FILE%" (
 )
 
 set import_count=0
-for /f "tokens=1,2,3 delims=|" %%a in ('findstr /v /b "#" "%IMPORT_FILE%"') do (
+for /f "tokens=1,2,3,4,5,6 delims=|" %%a in ('findstr /v /b "#" "%IMPORT_FILE%"') do (
     if not "%%a"=="" if not "%%b"=="" if not "%%c"=="" (
         if "%%a"=="SHORTCUT" (
             echo ::SHORTCUT^|%%b^|%%c>>"%~f0"
         ) else (
-            echo ::DATA^|%%a^|%%b^|%%c>>"%~f0"
+            echo ::DATA^|%%a^|%%b^|%%c^|%%d^|%%e^|%%f>>"%~f0"
         )
         set /a import_count+=1
     )
@@ -521,6 +568,9 @@ if not defined p_name[%G_NUM%] (
 set "SEL_NAME=!p_name[%G_NUM%]!"
 set "SEL_KEY=!p_key[%G_NUM%]!"
 set "SEL_URL=!p_url[%G_NUM%]!"
+set "SEL_HAIKU=!p_haiku[%G_NUM%]!"
+set "SEL_SONNET=!p_sonnet[%G_NUM%]!"
+set "SEL_OPUS=!p_opus[%G_NUM%]!"
 
 :APPLY_CONFIG_EXEC
 REM 执行系统变量设置
@@ -540,6 +590,25 @@ setx CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC "1" >nul 2>&1
 
 echo   %c_GRAY%Setting API_TIMEOUT_MS...%c_RESET%
 setx API_TIMEOUT_MS "600000" >nul 2>&1
+
+echo   %c_GRAY%Setting Model Maps...%c_RESET%
+if defined SEL_HAIKU (
+    setx ANTHROPIC_DEFAULT_HAIKU_MODEL "!SEL_HAIKU!" >nul 2>&1
+) else (
+    REG DELETE HKCU\Environment /v ANTHROPIC_DEFAULT_HAIKU_MODEL /f >nul 2>&1
+)
+
+if defined SEL_SONNET (
+    setx ANTHROPIC_DEFAULT_SONNET_MODEL "!SEL_SONNET!" >nul 2>&1
+) else (
+    REG DELETE HKCU\Environment /v ANTHROPIC_DEFAULT_SONNET_MODEL /f >nul 2>&1
+)
+
+if defined SEL_OPUS (
+    setx ANTHROPIC_DEFAULT_OPUS_MODEL "!SEL_OPUS!" >nul 2>&1
+) else (
+    REG DELETE HKCU\Environment /v ANTHROPIC_DEFAULT_OPUS_MODEL /f >nul 2>&1
+)
 
 echo.
 call :SHOW_SUCCESS "Profile '%SEL_NAME%' activated!"

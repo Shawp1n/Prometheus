@@ -33,6 +33,9 @@ Prometheus 是一个用于管理 Anthropic Claude API 配置（API Key 和 Base 
 
 -   `ANTHROPIC_AUTH_TOKEN`: 你的 API Key
 -   `ANTHROPIC_BASE_URL`: 你的 API 代理地址
+-   `ANTHROPIC_DEFAULT_HAIKU_MODEL`: （可选）配置的 Haiku 模型映射
+-   `ANTHROPIC_DEFAULT_SONNET_MODEL`: （可选）配置的 Sonnet 模型映射
+-   `ANTHROPIC_DEFAULT_OPUS_MODEL`: （可选）配置的 Opus 模型映射
 -   `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC`: 设为 1
 -   `API_TIMEOUT_MS`: 设为 600000 (10分钟)
 

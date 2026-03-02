@@ -7,9 +7,9 @@ Prometheus 是为了解决多环境下的 Claude API 配置管理问题而开发
 项目采用 **Windows Batch Script (.bat)** 编写，以保持最大的兼容性和便携性（无需安装额外运行时）。
 
 ### 核心机制
-- **自修改数据存储**：脚本利用 `type` 和 `findstr` 命令读取自身内容，并将数据以 `::DATA|Key|Value` 或 `::SHORTCUT|Alias|Command` 的形式追加到文件末尾。这使得脚本成为一个独立的单文件应用。
+- **自修改数据存储**：脚本利用 `type` 和 `findstr` 命令读取自身内容，并将数据以 `::DATA|Key|Value|...` 或 `::SHORTCUT|Alias|Command` 的形式追加到文件末尾。这使得脚本成为一个独立的单文件应用。向后兼容方面：因为读取使用的是 `tokens=1-7`，遇到旧的 `::DATA|Name|Key|Url` 格式时，剩余字段自动为空，保障老数据的正常读取和备份导出。
 - **环境变量控制**：
-    - **全局模式**：使用 `setx` 命令修改 Windows 用户级环境变量，实现持久化配置。
+    - **全局模式**：使用 `setx` 命令修改 Windows 用户级环境变量，实现持久化配置。对于置空的模型映射，如果系统环境中有该历史变量，工具会自动通过 `REG DELETE` 清理以免干扰。
     - **隔离模式**：通过 `wt` (Windows Terminal) 启动新的 CMD 进程，并在启动参数中直接注入环境变量 (`cmd /k "set ..."`). 这样新窗口拥有独立的配置，互不干扰。
     - **配置保留**：脚本不再主动修改或重置 `%USERPROFILE%\.claude\settings.json`，确保现有的 MCP (Model Context Protocol) 配置和权限设置不受影响。
 - **快捷指令注入**：利用 `doskey` 命令别名机制。
@@ -42,11 +42,11 @@ graph TD
 ```
 
 ## 4. 功能目录
-1.  **Profile Management**: 增删改查 API 配置 (Name, Key, URL)。
-2.  **Global Environment**: 一键应用配置到系统环境。
+1.  **Profile Management**: 增删改查 API 配置 (Name, Key, URL, 模型映射)。
+2.  **Global Environment**: 一键应用配置到系统环境。对于置空的模型映射，如果历史设置中有该变量，工具会自动清理。
 3.  **Isolated Terminal**: 启动带有特定配置和快捷指令的独立终端窗口。
 4.  **Shortcut System**: 管理 `doskey` 别名，自动注入到隔离终端。
-5.  **Backup/Restore**: 导出配置到文本文件，支持从文件恢复。
+5.  **Backup/Restore**: 导出配置到文本文件，支持从文件恢复（兼容旧版本格式）。
 6.  **Connectivity Test**: 使用 `curl` 验证 API 连接。
 
 ## 5. 后续开发方向
