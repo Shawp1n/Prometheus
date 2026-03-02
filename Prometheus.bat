@@ -48,18 +48,15 @@ for /L %%i in (1,1,50) do (
 for /f "tokens=2*" %%a in ('reg query "HKCU\Environment" /v ANTHROPIC_AUTH_TOKEN 2^>nul') do set "current_key=%%b"
 
 :: Load Data into Memory & Find Active Profile
-for /f "tokens=2,3,4,5,6,7 delims=|" %%a in ('findstr /b "::DATA|" "%~f0"') do (
+for /f "tokens=* delims=" %%L in ('findstr /b "::DATA|" "%~f0"') do (
+    set "_RAW_LINE=%%L"
     set /a count+=1
-    set "p_name[!count!]=%%a"
-    set "p_key[!count!]=%%b"
-    set "p_url[!count!]=%%c"
-    set "p_haiku[!count!]=%%d"
-    set "p_sonnet[!count!]=%%e"
-    set "p_opus[!count!]=%%f"
+    call :PARSE_DATA_LINE !count!
+)
 
-    if "%%b"=="!current_key!" (
-        set "active_profile=%%a"
-    )
+:: Find Active Profile (done after loading so all p_key values are stable)
+for /L %%i in (1,1,%count%) do (
+    if "!p_key[%%i]!"=="!current_key!" set "active_profile=!p_name[%%i]!"
 )
 
 :: Load Shortcuts
@@ -591,24 +588,15 @@ setx CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC "1" >nul 2>&1
 echo   %c_GRAY%Setting API_TIMEOUT_MS...%c_RESET%
 setx API_TIMEOUT_MS "600000" >nul 2>&1
 
+echo   %c_GRAY%Clearing Model Maps...%c_RESET%
+REG DELETE HKCU\Environment /v ANTHROPIC_DEFAULT_HAIKU_MODEL /f >nul 2>&1
+REG DELETE HKCU\Environment /v ANTHROPIC_DEFAULT_SONNET_MODEL /f >nul 2>&1
+REG DELETE HKCU\Environment /v ANTHROPIC_DEFAULT_OPUS_MODEL /f >nul 2>&1
+
 echo   %c_GRAY%Setting Model Maps...%c_RESET%
-if defined SEL_HAIKU (
-    setx ANTHROPIC_DEFAULT_HAIKU_MODEL "!SEL_HAIKU!" >nul 2>&1
-) else (
-    REG DELETE HKCU\Environment /v ANTHROPIC_DEFAULT_HAIKU_MODEL /f >nul 2>&1
-)
-
-if defined SEL_SONNET (
-    setx ANTHROPIC_DEFAULT_SONNET_MODEL "!SEL_SONNET!" >nul 2>&1
-) else (
-    REG DELETE HKCU\Environment /v ANTHROPIC_DEFAULT_SONNET_MODEL /f >nul 2>&1
-)
-
-if defined SEL_OPUS (
-    setx ANTHROPIC_DEFAULT_OPUS_MODEL "!SEL_OPUS!" >nul 2>&1
-) else (
-    REG DELETE HKCU\Environment /v ANTHROPIC_DEFAULT_OPUS_MODEL /f >nul 2>&1
-)
+if "!SEL_HAIKU!" NEQ "" setx ANTHROPIC_DEFAULT_HAIKU_MODEL "!SEL_HAIKU!" >nul 2>&1
+if "!SEL_SONNET!" NEQ "" setx ANTHROPIC_DEFAULT_SONNET_MODEL "!SEL_SONNET!" >nul 2>&1
+if "!SEL_OPUS!" NEQ "" setx ANTHROPIC_DEFAULT_OPUS_MODEL "!SEL_OPUS!" >nul 2>&1
 
 echo.
 call :SHOW_SUCCESS "Profile '%SEL_NAME%' activated!"
@@ -688,6 +676,36 @@ goto :eof
 :SHOW_ERROR
 echo.
 echo   %c_RED%✗ %~1%c_RESET%
+goto :eof
+
+REM ===================================================================================================
+REM 解析数据行子程序 (兼容3字段旧格式和6字段新格式，避免for /f循环变量跨行残留)
+REM ===================================================================================================
+:PARSE_DATA_LINE
+set "_N=%~1"
+:: 强制清空模型字段，防止旧格式行继承上一行的值
+set "p_haiku[!_N!]="
+set "p_sonnet[!_N!]="
+set "p_opus[!_N!]="
+:: 去掉 ::DATA| 前缀
+set "_F=!_RAW_LINE:*::DATA|=!"
+:: 逐字段提取
+for /f "tokens=1 delims=|" %%X in ("!_F!") do set "p_name[!_N!]=%%X"
+set "_F=!_F:*|=!"
+if "!_F!"=="!p_name[!_N!]!" goto :eof
+for /f "tokens=1 delims=|" %%X in ("!_F!") do set "p_key[!_N!]=%%X"
+set "_F=!_F:*|=!"
+if "!_F!"=="!p_key[!_N!]!" goto :eof
+for /f "tokens=1 delims=|" %%X in ("!_F!") do set "p_url[!_N!]=%%X"
+set "_F=!_F:*|=!"
+if "!_F!"=="!p_url[!_N!]!" goto :eof
+for /f "tokens=1 delims=|" %%X in ("!_F!") do set "p_haiku[!_N!]=%%X"
+set "_F=!_F:*|=!"
+if "!_F!"=="!p_haiku[!_N!]!" goto :eof
+for /f "tokens=1 delims=|" %%X in ("!_F!") do set "p_sonnet[!_N!]=%%X"
+set "_F=!_F:*|=!"
+if "!_F!"=="!p_sonnet[!_N!]!" goto :eof
+for /f "tokens=1 delims=|" %%X in ("!_F!") do set "p_opus[!_N!]=%%X"
 goto :eof
 
 REM ===================================================================================================
